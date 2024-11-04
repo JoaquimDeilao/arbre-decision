@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arbre de Décision - Journée sans Mail</title>
+  <style>
+    body { background-color: #ffcd00; color: #000000; font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    .question-box { padding: 20px; margin: 20px auto; border-radius: 12px; background-color: #ffffff; width: 80%; max-width: 600px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); position: relative; }
+    .button { margin: 10px; padding: 12px 24px; background-color: #000000; color: #ffffff; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+    .button:hover { background-color: #333333; }
+    .button:active { background-color: #555555; }
+    .logo { margin-top: 20px; display: block; width: 150px; margin-left: auto; margin-right: auto; }
+  </style>
+</head>
+<body>
+  <h1>Arbre de Décision - Journée sans Mail</h1>
+  <div id="decision-tree" class="question-box">
+    <p id="question-text">Je m’apprête à envoyer un mail.</p>
+    <button class="button" onclick="nextStep('yes')">Oui, c'est ce que je comptais faire</button>
+    <button class="button" onclick="nextStep('no')">Je suis indécis, voyons les alternatives</button>
+    <img src="LOGO_CD28_2019_n&b_PNG.png" alt="Logo Conseil Départemental" class="logo">
+  </div>
+
+  <script>
+    let currentStep = "start";
+
+    function nextStep(answer) {
+      switch (currentStep) {
+        case "start":
+          if (answer === "yes") {
+            document.getElementById("question-text").innerHTML = 'C’est une question qui presse ou ça peut patienter ?';
+            currentStep = "urgent";
+          } else {
+            document.getElementById("question-text").innerHTML = 'La personne est dispo tout de suite ou occupée ailleurs ?';
+            currentStep = "availability";
+          }
+          updateButtons(["Ça presse", "Ça peut attendre"]);
+          break;
+
+        case "urgent":
+          if (answer === "Ça presse") {
+            showFinalMessage("Utilisez un message instantané pour une réponse rapide.");
+          } else {
+            document.getElementById("question-text").innerHTML = 'Tu veux vraiment que ça reste écrit noir sur blanc ?';
+            currentStep = "traceability";
+            updateButtons(["Oui, besoin de trace", "Non, ce n’est pas nécessaire"]);
+          }
+          break;
+
+        case "availability":
+          if (answer === "Disponible") {
+            document.getElementById("question-text").innerHTML = 'T’es à deux pas du bureau de ton collègue ?';
+            currentStep = "proximity";
+            updateButtons(["Oui, j’y vais", "Non, trop loin ou absent du bureau"]);
+          } else {
+            document.getElementById("question-text").innerHTML = 'Faut-il vraiment une réponse à la seconde ?';
+            currentStep = "immediacy";
+            updateButtons(["Oui, tout de suite", "Non, pas urgent"]);
+          }
+          break;
+
+        case "proximity":
+          if (answer === "Oui, j’y vais") {
+            showFinalMessage("Privilégiez un échange en face-à-face.");
+          } else {
+            document.getElementById("question-text").innerHTML = 'Pourquoi ne pas y aller pour discuter ?';
+            currentStep = "inPerson";
+            updateButtons(["Bonne idée", "Je choisis un autre moyen"]);
+          }
+          break;
+
+        case "inPerson":
+          if (answer === "Bonne idée") {
+            showFinalMessage("Privilégiez un échange en face-à-face.");
+          } else {
+            document.getElementById("question-text").innerHTML = 'C’est juste pour ton interlocuteur et toi ou ça devient une conversation de groupe ?';
+            currentStep = "groupDiscussion";
+            updateButtons(["Pour deux", "En groupe"]);
+          }
+          break;
+
+        case "traceability":
+          if (answer === "Oui, besoin de trace") {
+            showFinalMessage("Envoyez un email pour garder une trace.");
+          } else {
+            document.getElementById("question-text").innerHTML = 'C’est une question simple ou il va falloir sortir les grandes explications ?';
+            currentStep = "clarity";
+            updateButtons(["Simple", "Besoin d’explications"]);
+          }
+          break;
+
+        case "clarity":
+          if (answer === "Besoin d’explications") {
+            showFinalMessage("Utilisez un outil de collaboration pour partager des détails.");
+          } else {
+            showFinalMessage("Un message rapide sur Teams suffira.");
+          }
+          break;
+
+        case "immediacy":
+          if (answer === "Oui, tout de suite") {
+            showFinalMessage("Utilisez un message instantané pour une réponse rapide.");
+          } else {
+            document.getElementById("question-text").innerHTML = 'C’est juste un échange rapide ou ça va finir en saga avec plusieurs épisodes ?';
+            currentStep = "length";
+            updateButtons(["Rapide", "Ça va durer"]);
+          }
+          break;
+
+        case "length":
+          if (answer === "Rapide") {
+            showFinalMessage("Un message rapide sur Teams suffira.");
+          } else {
+            showFinalMessage("Planifiez une réunion rapide sur Teams.");
+          }
+          break;
+
+        case "groupDiscussion":
+          if (answer === "Pour deux") {
+            showFinalMessage("Privilégiez un message direct.");
+          } else {
+            showFinalMessage("Planifiez une réunion sur Teams.");
+          }
+          break;
+      }
+    }
+
+    function showFinalMessage(message) {
+      document.getElementById("question-text").innerHTML = message;
+      document.querySelectorAll('.button').forEach(button => button.remove());
+      document.getElementById("decision-tree").innerHTML += "<button class='button' onclick='reset()'>Recommencer</button>";
+    }
+
+    function updateButtons(options) {
+      let buttons = document.querySelectorAll('.button');
+      buttons[0].innerText = options[0];
+      buttons[1].innerText = options[1];
+    }
+
+    function reset() {
+      currentStep = "start";
+      document.getElementById("decision-tree").innerHTML = `
+        <p id="question-text">Je m’apprête à envoyer un mail.</p>
+        <button class="button" onclick="nextStep('yes')">Oui, c'est ce que je comptais faire</button>
+        <button class="button" onclick="nextStep('no')">Je suis indécis, voyons les alternatives</button>
+        <img src="LOGO_CD28_2019_n&b_PNG.png" alt="Logo Conseil Départemental" class="logo">
+      `;
+    }
+  </script>
+</body>
+</html>
